@@ -11,6 +11,7 @@ def create_table():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        telegram_id INTEGER UNIQUE,
         name TEXT NOT NULL,
         completed_tasks INTEGER DEFAULT 0
     )
@@ -18,12 +19,12 @@ def create_table():
     conn.commit()
     conn.close()
 
-def add_user(name, completed_tasks=0):
+def add_user(telegram_id, name, completed_tasks=0):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO users (name, completed_tasks) VALUES (?, ?)",
-        (name, completed_tasks)
+        "INSERT INTO users (telegram_id, name, completed_tasks) VALUES (?, ?, ?)",
+        (telegram_id, name, completed_tasks)
     )
     conn.commit()
     conn.close()
@@ -35,3 +36,15 @@ def get_all_users():
     users = cursor.fetchall()
     conn.close()
     return users
+
+def get_user(telegram_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    )
+    user = cursor.fetchone()
+    conn.close()
+    return user
+

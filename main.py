@@ -32,3 +32,4 @@ add_user(user.name, user.completed_tasks)  # Добавляем пользова
 all_users = get_all_users()
 for u in all_users:
     print(f"ID: {u[0]}, Имя: {u[1]}, Выполнено заданий: {u[2]}")
+
