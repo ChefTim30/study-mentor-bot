@@ -1,5 +1,6 @@
 import sqlite3
 
+
 DB_NAME = "study_mentor.db"
 
 def get_connection():
@@ -13,11 +14,29 @@ def create_table():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         telegram_id INTEGER UNIQUE,
         name TEXT NOT NULL,
-        completed_tasks INTEGER DEFAULT 0
+        completed_tasks INTEGER DEFAULT 0,
+        grade INTEGER, 
+        target_score INTEGER
     )
     """)
     conn.commit()
     conn.close()
+
+def create_tasks_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT NOT NULL,
+        answer TEXT NOT NULL,
+        difficulty INTEGER DEFAULT 1
+    )
+    """)
+    conn.commit()
+    conn.close()
+
 
 def add_user(telegram_id, name, completed_tasks=0):
     conn = get_connection()
@@ -47,4 +66,58 @@ def get_user(telegram_id):
     user = cursor.fetchone()
     conn.close()
     return user
+
+
+ALLOWED_FIELDS = [
+    "grade",
+    "target_score",
+    "completed_tasks"
+]
+
+def update_user(telegram_id, field, value):
+    conn = get_connection()
+    cursor = conn.cursor()
+    if field not in ALLOWED_FIELDS:
+        raise ValueError(f"Недопустимое поле: {field}")
+
+    cursor.execute(
+        f"UPDATE users SET {field} = ? WHERE telegram_id = ?",
+        (value, telegram_id)
+    )
+    conn.commit()
+    conn.close()
+
+def add_task(question, answer, difficulty=1):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO tasks (question, answer, difficulty) VALUES (?, ?, ?)",
+        (question, answer, difficulty)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_task(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+    task = cursor.fetchone()
+    conn.close()
+    return task
+
+def get_random_task():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM tasks ORDER BY RANDOM() LIMIT 1"
+    )
+    task = cursor.fetchone()
+    conn.close()
+    return task
+
+
 

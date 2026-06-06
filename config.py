@@ -2,4 +2,6 @@ BOT_NAME = "Study Mentor Bot"
 
 VERSION = "0.1"
 
-TOKEN = "8938736681:AAGRVaMnpmcFw6M1xqUqZ7OxbbaR215AVlQ"
+import os
+
+TOKEN = os.getenv("TOKEN")
