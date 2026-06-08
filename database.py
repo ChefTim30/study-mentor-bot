@@ -31,7 +31,9 @@ def create_tasks_table():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question TEXT NOT NULL,
         answer TEXT NOT NULL,
-        difficulty INTEGER DEFAULT 1
+        difficulty INTEGER DEFAULT 1,
+        category TEXT NOT NULL,
+        topic TEXT NOT NULL
     )
     """)
     conn.commit()
@@ -87,12 +89,16 @@ def update_user(telegram_id, field, value):
     conn.commit()
     conn.close()
 
-def add_task(question, answer, difficulty=1):
+def add_task(question, answer, difficulty, category, topic):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO tasks (question, answer, difficulty) VALUES (?, ?, ?)",
-        (question, answer, difficulty)
+        """
+        INSERT INTO tasks
+        (question, answer, difficulty, category, topic)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (question, answer, difficulty, category, topic)
     )
     conn.commit()
     conn.close()
@@ -109,11 +115,20 @@ def get_task(task_id):
     conn.close()
     return task
 
-def get_random_task():
+def get_random_task(category, topic, difficulty):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT * FROM tasks ORDER BY RANDOM() LIMIT 1"
+        """
+        SELECT *
+        FROM tasks
+        WHERE category = ?
+        AND topic = ?
+        AND difficulty = ?
+        ORDER BY RANDOM()
+        LIMIT 1
+        """,
+        (category, topic, difficulty)
     )
     task = cursor.fetchone()
     conn.close()
