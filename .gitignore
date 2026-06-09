@@ -1,5 +1,5 @@
-.idea/
-.venv/
-__pycache__/
 *.pyc
+__pycache__/
+.venv
 .env
+study_mentor.db
